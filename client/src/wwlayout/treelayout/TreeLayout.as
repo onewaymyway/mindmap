@@ -40,12 +40,9 @@ package wwlayout.treelayout
 		{
 			this.removeChildren();
 		}
-		public function layoutData(data:TreeData,autoBalance:Boolean=true):void
+		public function balanceTree(data:TreeData):void
 		{
-			root = data;
-			if (autoBalance)
-			{
-				var totalList:Array;
+			var totalList:Array;
 				totalList = [];
 				var i:int, len:int;
 				var tArr:Array;
@@ -79,12 +76,20 @@ package wwlayout.treelayout
 						walkTree(tArr[i], TreeData.changeSide, null);
 					}
 				}
+		}
+		public function layoutData(data:TreeData,autoBalance:Boolean=true):void
+		{
+			root = data;
+			if (autoBalance)
+			{
+				balanceTree(data);
 			}
 			fresh();
 
 		}
 		public function fresh():void
 		{
+			TreeData.adptTree(root, null);
 			walkTree(root, createTreeRender, this);
 			layout();
 		}
@@ -138,7 +143,6 @@ package wwlayout.treelayout
 		public function measureRec(data:TreeData,isRight:Boolean=true):Rectangle
 		{
 			data.rec.setTo(0, 0, data.displayItem.width, data.displayItem.height);
-			data.childsRec.setTo(0, 0, 0, 0);
 			var i:int, len:int;
 			var dataChilds:Array;
 			dataChilds =  isRight?data.childsR:data.childsL;

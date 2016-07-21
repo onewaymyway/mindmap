@@ -19,13 +19,69 @@ package wwlayout.treelayout
 		public var childsL:Array = [];
 		public var displayItem:TreeRender;
 		public var rec:Rectangle = new Rectangle();
-		public var childsRec:Rectangle = new Rectangle();
+		//public var childsRec:Rectangle = new Rectangle();
 		public var totalRec:Rectangle = new Rectangle();
 		public var isOpen:Boolean = true;
 		public var tarPos:Point = new Point();
+		public var parent:TreeData;
+		public var side:int = 0;
+		public static const Left:int = 1;
+		public static const Right:int = 0;
+		public static const Both:int = 2;
 		
 		public var pos:Point = new Point();
-		
+		public function getChildsBySide(side:int):void
+		{
+			switch(side)
+			{
+				case Left:
+					return childsL;
+					break;
+				case Right:
+					return childsR;
+					break;	
+			}
+			return null;
+		}
+		public function addChild(child:TreeData, side:int):void
+		{
+			var childs:Array;
+			childs = getChildsBySide(side);
+			if (childs)
+			{
+				child.parent = this;
+				child.side = side;
+				childs.push(child);
+			}else
+			{
+				trace("Fail to addChild:",side,child,this);
+			}
+		}
+		public function removeChild(child:TreeData):void
+		{
+			var tArr:Array;
+			var index:int;
+			tArr = childsL;
+			index = tArr.indexOf(child);
+			if (index >= 0)
+			{
+				tArr.splice(index, 1);
+			}
+			tArr = childsR;
+			index = tArr.indexOf(child);
+			if (index >= 0)
+			{
+				tArr.splice(index, 1);
+			}
+		}
+		public function removeSelf():void
+		{
+			if (parent)
+			{
+				parent.removeChild(this);
+				this.parent = null;
+			}
+		}
 		public static function changeSide(tree:TreeData):void
 		{
 			var tArr:Array;
@@ -43,7 +99,25 @@ package wwlayout.treelayout
 				tree.childsL.concat(tree.childsR);
 			}
 		}
-		
+		public static function adptTree(tree:TreeData, parent:TreeData = null,side:int=Both):void
+		{
+			tree.parent = parent;
+			tree.side = side;
+			var childs:Array;	
+			var i:int, len:int;
+			childs = tree.childsR;
+			len = childs.length;
+			for (i = 0; i < len; i++)
+			{
+				adptTree(childs[i],tree,Right);
+			}
+			childs = tree.childsL;
+			len = childs.length;
+			for (i = 0; i < len; i++)
+			{
+				adptTree(childs[i],tree,Left);
+			}
+		}
 		public static function createTestTree():TreeData
 		{
 			var rst:TreeData;
